@@ -5,8 +5,8 @@
 CXX=g++
 CPPFLAGS=--std=c++17
 
-DEPS=graph.hpp node.hpp list.hpp lib/catch.hpp
-OBJ=main.o graph.o list.o tests.o
+DEPS=pqueue.hpp astar.hpp lib/catch.hpp
+OBJ=main.o pqueue.o astar.o tests.o
 
 all: clean test
 

@@ -2,7 +2,7 @@
 #define TEST 1 // Always change to 1 before your final submission to Github Classroom.
 #include "lib/catch.hpp"
 #include <stdlib.h>
-#include "graph.hpp"
+#include "astar.hpp"
 
 // DO NOT CHANGE THIS METHOD
 int runCatchTests(int argc, char* const argv[])
@@ -15,12 +15,10 @@ int runCatchTests(int argc, char* const argv[])
  */
 int main(int argc, char* const argv[] ){
     // =====================
-    // Topology Search
+    // Shortest Path Search
     // ---------------------
     // Test your implemenation here:
-    // read the makefile
-    // start topology search
-    // print the list
+    
 
     
     // DO NOT CHANGE CODE AFTER THIS LINE

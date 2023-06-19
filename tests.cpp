@@ -4,105 +4,161 @@
 
 //#define CATCH_CONFIG_MAIN // defines main() automatically
 #include "lib/catch.hpp"
-#include "graph.hpp"
+#include "astar.hpp"
 
 // =====================
 // Graph Testcases
 // ---------------------
 
-TEST_CASE("Test1", "checkNodes")
+// Possible values in the graph:
+// -1 ... Blocked / NO NODE / Barricade / Wall...
+//  0 ... Node - initial value
+// >0 ... Actual cost from source to this very node
+// -2 ... Shortest Path
+// INFINITE ... each Node, except for the source node, is set to INFINITE in the beginning of A*
+
+TEST_CASE("Test1", "checkPath1")
 {
-    graph *g = readGraphFromFile("makefile_");
-    INFO("(1) 'makefile_' not found. (provide file or set working directory). Ignore if (2) shows up.");
-    REQUIRE(g != nullptr);
-    topologySearch(g);
-    INFO("(2) Testing if nodes have been modified accordingly.");
-    for(int i = 0; i < g->numNodes; i++){
-        REQUIRE(g->nodes[i].color == BLACK);
-        REQUIRE(g->nodes[i].startTime != 0);
-        REQUIRE(g->nodes[i].endTime != 0);
-    }
+    int graph[ROWS][COLS] = {
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0,-1, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0,-1, 0,-1},
+        {-1, 0, 0,-1,-1,-1,-1,-1, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0,-1,-1, 0, 0, 0,-1},
+        {-1,-1,-1, 0,-1,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0,-1},
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    };
+    int notExpected[ROWS][COLS] = {
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0,-1, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0,-1, 0,-1},
+        {-1, 0, 0,-1,-1,-1,-1,-1, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0,-1,-1, 0, 0, 0,-1},
+        {-1,-1,-1, 0,-1,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0,-1},
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    };
+    int start[2] = {1,1};
+    int end[2] = {7,8};
+    g_init(graph);
+    g_astar(start, end);
+    INFO("Testing if there are values set within the graph.");
+    getResult(graph);
+    REQUIRE(memcmp(graph, notExpected, sizeof(graph)) != 0);
 }
 
-TEST_CASE("Test2", "checkEndTimes")
+TEST_CASE("Test2", "checkSourceTarget")
 {
-    graph *g = readGraphFromFile("makefile_");
-    INFO("(1) 'makefile_' not found. (provide file or set working directory). Ignore if (2) shows up.");
-    REQUIRE(g != nullptr);
-    topologySearch(g);
-    INFO("(2) Testing if endTime is set accordingly.");
-    for(int i = 0; i < g->numNodes; i++){
-        if(strcmp(g->nodes[i].name,"treeApp") == 0){
-            REQUIRE(g->nodes[i].endTime < 5);
-        } else if(strcmp(g->nodes[i].name,"grammar.g") == 0){
-            REQUIRE(g->nodes[i].endTime > 10);
-        }
-    }
+    int graph[ROWS][COLS] = {
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0,-1, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0,-1, 0,-1},
+        {-1, 0, 0,-1,-1,-1,-1,-1, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0,-1,-1, 0, 0, 0,-1},
+        {-1,-1,-1, 0,-1,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0,-1},
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    };
+    int start[2] = {1,1};
+    int end[2] = {7,8};
+    g_init(graph);
+    g_astar(start, end);
+    INFO("Testing if source and target are marked on the path.");
+    getResult(graph);
+    REQUIRE(graph[1][1] == -2); // source
+    REQUIRE(graph[7][8] == -2); // target
 }
 
-TEST_CASE("Test3", "checkList")
+TEST_CASE("Test3", "edgeCase")
 {
-    graph *g = readGraphFromFile("makefile_");
-    INFO("(1) 'makefile_' not found. (provide file or set working directory). Ignore if (2) shows up.");
-    REQUIRE(g != nullptr);
-    list* list = topologySearch(g);
-    INFO("(2) Testing if list is not empty or not null.");
-    REQUIRE(list != nullptr);
-    REQUIRE(list->count != 0);
+    int graph[ROWS][COLS] = {
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0,-1, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0,-1, 0,-1},
+        {-1, 0, 0,-1,-1,-1,-1,-1, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0,-1,-1, 0, 0, 0,-1},
+        {-1,-1,-1, 0,-1,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0,-1},
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    };
+    int start[2] = {1,1};
+    int end[2] = {7,8};
+    g_init(graph);
+    g_astar(start, end);
+    INFO("Testing if the shortest path was found. Use main to find the problem and print the graph using g_print().");
+    getResult(graph);
+    REQUIRE(graph[7][3] == -2); // these fields must be crossed for the shortest path
+    REQUIRE(graph[8][3] == -2);
+    REQUIRE(graph[8][4] == -2);
+    REQUIRE(graph[8][5] == -2);
 }
 
-TEST_CASE("Test4", "checkListNodeCount")
+TEST_CASE("Test4", "maze")
 {
-    graph *g = readGraphFromFile("makefile_");
-    INFO("(1) 'makefile_' not found. (provide file or set working directory). Ignore if (2),(3) shows up.");
-    REQUIRE(g != nullptr);
-    list* list = topologySearch(g);
-    INFO("(2) Testing if there is a valid list.");
-    REQUIRE(list != nullptr);
-    INFO("(3) Testing if list contains all elements.");
-    REQUIRE(list->count == 17);
+    int graph[ROWS][COLS] = {
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0,-1, 0,-1, 0,-1, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0,-1, 0,-1},
+        {-1, 0, 0,-1,-1,-1,-1,-1, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0,-1, 0,-1},
+        {-1, 0, 0, 0,-1,-1, 0,-1, 0,-1},
+        {-1,-1,-1, 0,-1,-1, 0,-1, 0,-1},
+        {-1, 0, 0, 0, 0, 0, 0,-1, 0,-1},
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    };
+    int start[2] = {1,1};
+    int end[2] = {7,8};
+    g_init(graph);
+    g_astar(start, end);
+    INFO("Testing if a path through a maze is found. Use the main function and g_print() to find any problems.");
+    getResult(graph);
+    REQUIRE(graph[1][1] == -2);
+    REQUIRE(graph[1][2] == -2);
+    REQUIRE(graph[1][3] == -2);
+    REQUIRE(graph[1][4] == -2);
+    REQUIRE(graph[1][8] == -2);
+    REQUIRE(graph[2][8] == -2);
+    REQUIRE(graph[3][8] == -2);
+    REQUIRE(graph[4][8] == -2);
+    REQUIRE(graph[5][8] == -2);
+    REQUIRE(graph[6][8] == -2);
+    REQUIRE(graph[7][8] == -2);
 }
 
-TEST_CASE("Test5", "checkIfTreeAppIsLast")
+TEST_CASE("Test5", "alternateGraph")
 {
-    graph *g = readGraphFromFile("makefile_");
-    INFO("(1) 'makefile_' not found. (provide file or set working directory). Ignore if (2),(3) shows up.");
-    REQUIRE(g != nullptr);
-    list* list = topologySearch(g);
-    INFO("(2) Testing if there is a valid list.");
-    REQUIRE(list != nullptr);
-    INFO("(3) Testing if treeApp is the last element in the list.");
-    element *tmp = list->head;
-    while (tmp != NULL) {
-        if(tmp->next == NULL)
-            break;
-        tmp = tmp->next;
-    }
-    REQUIRE(tmp != nullptr);
-    REQUIRE(strcmp(tmp->name,"treeApp")==0);
-}
+    int graph[ROWS][COLS] = {
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0, 0, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0, 0, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0, 0, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0, 0, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0, 0, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0,-1},
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    };
+    int start[2] = {1,1};
+    int end[2] = {5,5};
+    g_init(graph);
+    g_astar(start, end);
+    INFO("Testing if a path through a maze is found. Use the main function and g_print() to find any problems.");
+    getResult(graph);
+    REQUIRE(graph[1][1] == -2);
+    REQUIRE(graph[1][2] == -2);
+    REQUIRE(graph[1][3] == -2);
+    REQUIRE(graph[1][4] == -2);
+    REQUIRE(graph[5][5] == -2);
 
-TEST_CASE("Test6", "checkOrder")
-{
-    graph *g = readGraphFromFile("makefile_");
-    INFO("(1) 'makefile_' not found. (provide file or set working directory). Ignore if (2),(3) shows up.");
-    REQUIRE(g != nullptr);
-    list* list = topologySearch(g);
-    INFO("(2) Testing if there is a valid list.");
-    REQUIRE(list != nullptr);
-    REQUIRE(list->head != nullptr);
-    REQUIRE(list->count == 17);
-    INFO("(3) Testing if the order is correct.");
-    printf("Printing list:\n\n");
-    l_print(list);
-    element *current = list->head;
-    while(current){
-        element *tmp = current->next;
-        while(tmp){
-            INFO("'" << current->name << "' should have a larger end time than " << current->endTime);
-            REQUIRE(tmp->endTime < current->endTime);
-            tmp = tmp->next;
-        }
-        current = current->next;
-    }
 }
