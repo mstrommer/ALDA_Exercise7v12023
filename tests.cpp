@@ -183,6 +183,8 @@ TEST_CASE("Test6", "checkHeuristic")
     g_astar(start, end);
     INFO("Testing if a heuristic was used or not. Use main to find the problem and print the graph using g_print().");
     getResult(graph);
+    int h = g_heuristic(start, end);
+    REQUIRE(h != 0);
     REQUIRE(graph[6][8] == INFINITE); // if a heuristic is used the following nodes must not be visited
     REQUIRE(graph[5][8] == INFINITE);
     REQUIRE(graph[4][8] == INFINITE);
