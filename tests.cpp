@@ -162,3 +162,30 @@ TEST_CASE("Test5", "alternateGraph")
     REQUIRE(graph[5][5] == -2);
 
 }
+
+TEST_CASE("Test6", "checkHeuristic")
+{
+    int graph[ROWS][COLS] = {
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0,-1, 0,-1},
+        {-1, 0, 0,-1, 0, 0, 0,-1, 0,-1},
+        {-1, 0, 0,-1,-1,-1,-1,-1, 0,-1},
+        {-1, 0, 0, 0, 0,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0,-1,-1, 0, 0, 0,-1},
+        {-1,-1,-1, 0,-1,-1, 0, 0, 0,-1},
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0,-1},
+        {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    };
+    int start[2] = {1,1};
+    int end[2] = {7,8};
+    g_init(graph);
+    g_astar(start, end);
+    INFO("Testing if a heuristic was used or not. Use main to find the problem and print the graph using g_print().");
+    getResult(graph);
+    REQUIRE(graph[6][8] == INFINITE); // if a heuristic is used the following nodes must not be visited
+    REQUIRE(graph[5][8] == INFINITE);
+    REQUIRE(graph[4][8] == INFINITE);
+    REQUIRE(graph[3][8] == INFINITE);
+    REQUIRE(graph[8][1] == INFINITE);
+}
