@@ -153,7 +153,7 @@ TEST_CASE("Test5", "alternateGraph")
     int end[2] = {5,5};
     g_init(graph);
     g_astar(start, end);
-    INFO("Testing if a path through a maze is found. Use the main function and g_print() to find any problems.");
+    INFO("Testing an alternate graph. Use the main function and g_print() to find any problems.");
     getResult(graph);
     REQUIRE(graph[1][1] == -2);
     REQUIRE(graph[1][2] == -2);
